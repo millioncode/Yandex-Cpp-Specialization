@@ -14,6 +14,12 @@ bool operator==(const geo2d::Point& a, const geo2d::Point& b) {
   return (a.x == b.x 
               && a.y == b.y) ;
 }
+bool operator==(const geo2d::Rectangle& a, const geo2d::Rectangle & b) {
+  return (
+      a.BottomLeft() == b.BottomLeft()
+      && a.TopRight() == b.TopRight()
+              ) ;
+}
 
 class Unit: public GameObject {
 public:
@@ -22,18 +28,35 @@ public:
   virtual bool Collide(const GameObject& that) const override {
     return that.CollideWith(*this);
   }
+  
+private:
+  geo2d::Point pos_unit;
   virtual bool CollideWith(const Unit& that) const override {
       return (this->pos_unit == that.pos_unit) ;
   }
-private:
-  geo2d::Point pos_unit;
-};
-/*
-class Building {
-public:
-  explicit Building(geo2d::Rectangle geometry);
+  virtual bool CollideWith(const Building& that) const {
+    return true;
+  }
 };
 
+class Building: public GameObject {
+public:
+  explicit Building(geo2d::Rectangle geometry): pos_building(geometry) {}
+  virtual bool Collide(const GameObject& that) const override {
+    return that.CollideWith(*this);
+  }
+  virtual bool CollideWith(const Building& that) const {
+    return (this->pos_building==that.pos_building);
+  }
+  virtual bool CollideWith(const Unit& that) const override {
+    return true;
+  }
+private:
+  geo2d::Rectangle pos_building;
+  /*int left_x, right_x;
+  int bottom_y, top_y;*/
+};
+/*
 class Tower {
 public:
   explicit Tower(geo2d::Circle geometry);
@@ -56,9 +79,17 @@ void TestAddingNewObjectOnMap() {
   // Мы можем его добавить, только если он не пересекается ни с одним из существующих.
   using namespace geo2d;
   Unit a(Point{1,1});
-  Unit b(Point{1,1});
+  Unit b(Point{2,2});
   if (Collide(a,b)) std::cout << "collide " << std::endl;
   else std::cout << "no collide " << std::endl;
+
+  Point p1{1,1};
+  Point p2{3,3};
+  Rectangle c(p1,p2);
+ /* Building ab(Rectangle{Point{1,1}, Point{3,3}});
+  Building bb(Rectangle{Point{1,1}, Point{3,3}});
+  if (Collide(ab,bb)) std::cout << "collide " << std::endl;
+  else std::cout << "no collide " << std::endl;*/
 /*
   const vector<shared_ptr<GameObject>> game_map = {
     make_shared<Unit>(Point{3, 3}),
