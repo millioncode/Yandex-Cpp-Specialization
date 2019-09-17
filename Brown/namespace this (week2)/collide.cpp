@@ -78,14 +78,14 @@ void TestAddingNewObjectOnMap() {
   // и мы хотим добавить на неё новый, например, построить новое здание или башню.
   // Мы можем его добавить, только если он не пересекается ни с одним из существующих.
   using namespace geo2d;
-  Unit a(Point{1,1});
+  /*Unit a(Point{1,1});
   Unit b(Point{2,2});
   if (Collide(a,b)) std::cout << "collide " << std::endl;
-  else std::cout << "no collide " << std::endl;
+  else std::cout << "no collide " << std::endl;*/
 
-  Point p1{1,1};
-  Point p2{3,3};
-  Rectangle r{p1,p2};
+  geo2d::Point p1{1,1};
+  geo2d::Point p2{3,3};
+  geo2d::Rectangle r(p1, p2);
  /* Building ab(Rectangle{Point{1,1}, Point{3,3}});
   Building bb(Rectangle{Point{1,1}, Point{3,3}});
   if (Collide(ab,bb)) std::cout << "collide " << std::endl;
