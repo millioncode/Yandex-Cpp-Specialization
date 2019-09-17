@@ -10,16 +10,20 @@ using namespace std;
 
 // Определите классы Unit, Building, Tower и Fence так, чтобы они наследовались от
 // GameObject и реализовывали его интерфейс.
+bool operator==(const geo2d::Point& a, const geo2d::Point& b) {
+  return (a.x == b.x 
+              && a.y == b.y) ;
+}
 
 class Unit: public GameObject {
 public:
   explicit Unit(geo2d::Point position): pos_unit(position) {}
-  /*bool Collide(const GameObject& that) const {
-    return CollideWith(that);
-  }*/
-  virtual bool CollideWith(const Unit& that) const {
-      return (this->pos_unit.x == that.pos_unit.x 
-              && this->pos_unit.y == that.pos_unit.y) ;
+
+  virtual bool Collide(const GameObject& that) const override {
+    return that.CollideWith(*this);
+  }
+  virtual bool CollideWith(const Unit& that) const override {
+      return (this->pos_unit == that.pos_unit) ;
   }
 private:
   geo2d::Point pos_unit;
@@ -43,6 +47,7 @@ public:
 // Реализуйте функцию Collide из файла GameObject.h
 
 bool Collide(const GameObject& first, const GameObject& second) {
+  return first.Collide(second);
 }
 
 void TestAddingNewObjectOnMap() {
@@ -52,7 +57,7 @@ void TestAddingNewObjectOnMap() {
   using namespace geo2d;
   Unit a(Point{1,1});
   Unit b(Point{1,1});
-  if (a.CollideWith(b)) std::cout << "collide " << std::endl;
+  if (Collide(a,b)) std::cout << "collide " << std::endl;
   else std::cout << "no collide " << std::endl;
 /*
   const vector<shared_ptr<GameObject>> game_map = {
