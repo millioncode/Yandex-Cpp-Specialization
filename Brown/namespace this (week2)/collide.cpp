@@ -85,7 +85,7 @@ void TestAddingNewObjectOnMap() {
 
   Point p1{1,1};
   Point p2{3,3};
-  Rectangle c(p1,p2);
+  Rectangle r{p1,p2};
  /* Building ab(Rectangle{Point{1,1}, Point{3,3}});
   Building bb(Rectangle{Point{1,1}, Point{3,3}});
   if (Collide(ab,bb)) std::cout << "collide " << std::endl;
