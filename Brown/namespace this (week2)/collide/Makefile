@@ -1,5 +1,6 @@
 CC=g++
-FLAGS=-std=c++17
-FILES=collide.cpp game_object.h geo2d.cpp geo2d.h test_runner.h 
+FLAGS=-std=c++17 
+FILES=collide.cpp  geo2d.cpp 
+#geo2d.h test_runner.h game_object.h
 all:
-	$(CC) $(FLAGS) -I. $(FILES) -o run_project
+	$(CC) $(FLAGS) -I./h/ $(FILES) -o collide

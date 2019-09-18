@@ -14,21 +14,12 @@ class Tower;
 class Fence;
 // Определите классы Unit, Building, Tower и Fence так, чтобы они наследовались от
 // GameObject и реализовывали его интерфейс.
-bool operator==(const geo2d::Point& a, const geo2d::Point& b) {
-  return (a.x == b.x 
-              && a.y == b.y) ;
-}
-bool operator==(const geo2d::Rectangle& a, const geo2d::Rectangle & b) {
-  return (
-      a.BottomLeft() == b.BottomLeft()
-      && a.TopRight() == b.TopRight()
-              ) ;
-}
+
 
 class Unit: public GameObject {
 public:
   explicit Unit(geo2d::Point position): _pos(position) {}
-  geo2d::Point get() const {
+  auto get() const {
     return this->_pos;
   }
   virtual bool Collide(const GameObject& that) const override {
@@ -45,7 +36,7 @@ private:
 class Building: public GameObject {
 public:
   explicit Building(geo2d::Rectangle geometry): _pos(geometry) {}
-  geo2d::Rectangle get() const {
+  auto get() const {
     return _pos;
   }
   virtual bool Collide(const GameObject& that) const override {
@@ -62,7 +53,7 @@ private:
 class Tower: public GameObject {
 public:
   explicit Tower(geo2d::Circle geometry): _pos(geometry) {}
-  geo2d::Circle get() const {
+  auto get() const {
     return _pos;
   }
   virtual bool Collide(const GameObject& that) const override {
@@ -79,7 +70,7 @@ private:
 class Fence: public GameObject {
 public:
   explicit Fence(geo2d::Segment geometry):_pos(geometry) {}
-  geo2d::Segment get() const {
+  auto get() const {
     return _pos;
   }
   virtual bool Collide(const GameObject& that) const override {

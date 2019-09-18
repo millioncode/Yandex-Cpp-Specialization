@@ -1,3 +1,6 @@
 #!/bin/bash
+
 make
-./run_project
+./collide
+
+rm collide
