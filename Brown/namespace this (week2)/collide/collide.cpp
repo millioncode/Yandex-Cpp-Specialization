@@ -7,7 +7,11 @@
 #include <memory>
 
 using namespace std;
-
+using namespace geo2d;
+class Unit;
+class Building;
+class Tower;
+class Fence;
 // Определите классы Unit, Building, Tower и Fence так, чтобы они наследовались от
 // GameObject и реализовывали его интерфейс.
 bool operator==(const geo2d::Point& a, const geo2d::Point& b) {
@@ -23,77 +27,131 @@ bool operator==(const geo2d::Rectangle& a, const geo2d::Rectangle & b) {
 
 class Unit: public GameObject {
 public:
-  explicit Unit(geo2d::Point position): pos_unit(position) {}
-
+  explicit Unit(geo2d::Point position): _pos(position) {}
+  geo2d::Point get() const {
+    return this->_pos;
+  }
   virtual bool Collide(const GameObject& that) const override {
     return that.CollideWith(*this);
   }
-  
+  virtual bool CollideWith(const Unit& that) const override ;
+  virtual bool CollideWith(const Building& that) const override;
+  virtual bool CollideWith(const Tower& that) const override;
+  virtual bool CollideWith(const Fence& that) const override;
 private:
-  geo2d::Point pos_unit;
-  virtual bool CollideWith(const Unit& that) const override {
-      return (this->pos_unit == that.pos_unit) ;
-  }
-  virtual bool CollideWith(const Building& that) const override{
-    return true;
-  }
+  geo2d::Point _pos;
 };
 
 class Building: public GameObject {
 public:
-  explicit Building(geo2d::Rectangle geometry): pos_building(geometry) {}
+  explicit Building(geo2d::Rectangle geometry): _pos(geometry) {}
+  geo2d::Rectangle get() const {
+    return _pos;
+  }
   virtual bool Collide(const GameObject& that) const override {
     return that.CollideWith(*this);
   }
-  virtual bool CollideWith(const Building& that) const override{
-    return (this->pos_building==that.pos_building);
-  }
-  virtual bool CollideWith(const Unit& that) const override {
-    return true;
-  }
-private:
-  geo2d::Rectangle pos_building;
-  /*int left_x, right_x;
-  int bottom_y, top_y;*/
-};
-/*
-class Tower {
-public:
-  explicit Tower(geo2d::Circle geometry);
+  virtual bool CollideWith(const Unit& that) const override;
+  virtual bool CollideWith(const Building& that) const override;
+  virtual bool CollideWith(const Tower& that) const override;
+  virtual bool CollideWith(const Fence& that) const override;
+private: 
+  geo2d::Rectangle _pos;
 };
 
-class Fence {
+class Tower: public GameObject {
 public:
-  explicit Fence(geo2d::Segment geometry);
+  explicit Tower(geo2d::Circle geometry): _pos(geometry) {}
+  geo2d::Circle get() const {
+    return _pos;
+  }
+  virtual bool Collide(const GameObject& that) const override {
+    return that.CollideWith(*this);
+  }
+  virtual bool CollideWith(const Unit& that) const override;
+  virtual bool CollideWith(const Building& that) const override;
+  virtual bool CollideWith(const Tower& that) const override;
+  virtual bool CollideWith(const Fence& that) const override;
+private:
+  geo2d::Circle _pos;
 };
-*/
+
+class Fence: public GameObject {
+public:
+  explicit Fence(geo2d::Segment geometry):_pos(geometry) {}
+  geo2d::Segment get() const {
+    return _pos;
+  }
+  virtual bool Collide(const GameObject& that) const override {
+    return that.CollideWith(*this);
+  }
+  virtual bool CollideWith(const Unit& that) const override;
+  virtual bool CollideWith(const Building& that) const override;
+  virtual bool CollideWith(const Tower& that) const override;
+  virtual bool CollideWith(const Fence& that) const override;
+private:
+  geo2d::Segment _pos;
+};
+
 // Реализуйте функцию Collide из файла GameObject.h
 
 bool Collide(const GameObject& first, const GameObject& second) {
   return first.Collide(second);
 }
-
+bool Unit::CollideWith(const Unit& that) const {
+      return geo2d::Collide(_pos, that.get()) ;
+  }
+bool Unit::CollideWith(const Building& that) const {
+    return geo2d::Collide(_pos, that.get()) ;
+  }
+bool Unit::CollideWith(const Tower& that) const {
+    return geo2d::Collide(_pos, that.get()) ;
+  }
+bool Unit::CollideWith(const Fence& that) const {
+    return geo2d::Collide(_pos, that.get()) ;
+}
+bool Building::CollideWith(const Unit& that) const {
+    return geo2d::Collide(_pos, that.get()) ;
+  }
+bool Building::CollideWith(const Building& that) const {
+    return geo2d::Collide(_pos, that.get()) ;
+  }
+bool Building::CollideWith(const Tower& that) const {
+    return geo2d::Collide(_pos, that.get()) ;
+  }
+bool Building::CollideWith(const Fence& that) const {
+    return geo2d::Collide(_pos, that.get()) ;
+}
+bool Tower::CollideWith(const Unit& that) const {
+    return geo2d::Collide(_pos, that.get()) ;
+  }
+bool Tower::CollideWith(const Building& that) const {
+    return geo2d::Collide(_pos, that.get()) ;
+  }
+bool Tower::CollideWith(const Tower& that) const {
+    return geo2d::Collide(_pos, that.get()) ;
+  }
+bool Tower::CollideWith(const Fence& that) const {
+    return geo2d::Collide(_pos, that.get()) ;
+}
+bool Fence::CollideWith(const Unit& that) const {
+    return geo2d::Collide(_pos, that.get()) ;
+  }
+bool Fence::CollideWith(const Building& that) const {
+    return geo2d::Collide(_pos, that.get()) ;
+  }
+bool Fence::CollideWith(const Tower& that) const {
+    return geo2d::Collide(_pos, that.get()) ;
+  }
+bool Fence::CollideWith(const Fence& that) const {
+    return geo2d::Collide(_pos, that.get()) ;
+}
 void TestAddingNewObjectOnMap() {
   // Юнит-тест моделирует ситуацию, когда на игровой карте уже есть какие-то объекты,
   // и мы хотим добавить на неё новый, например, построить новое здание или башню.
   // Мы можем его добавить, только если он не пересекается ни с одним из существующих.
-  using namespace geo2d;
-  geo2d::Point p1{1,1};
-  geo2d::Point p2{3,3};
 
-  Unit a(p1);
-  Unit b(p2);
-  if (Collide(a,b)) std::cout << "collide " << std::endl;
-  else std::cout << "no collide " << std::endl;
 
-  
-  geo2d::Rectangle r(p1, p2);
-  Building ab(Rectangle{Point{1,1}, Point{3,3}});
-  Building bb(Rectangle{Point{1,1}, Point{3,3}});
-  if (Collide(ab,bb)) std::cout << "collide " << std::endl;
-  else std::cout << "no collide " << std::endl;
-  geo2d::Circle c{p1, 2};
-/*
   const vector<shared_ptr<GameObject>> game_map = {
     make_shared<Unit>(Point{3, 3}),
     make_shared<Unit>(Point{5, 5}),
@@ -134,7 +192,7 @@ void TestAddingNewObjectOnMap() {
   ASSERT( Collide(*new_defense_tower, *game_map[3]));
   ASSERT( Collide(*new_defense_tower, *game_map[4]));
   ASSERT(!Collide(*new_defense_tower, *game_map[5]));
-  ASSERT(!Collide(*new_defense_tower, *game_map[6]));*/
+  ASSERT(!Collide(*new_defense_tower, *game_map[6]));
 }
 
 int main() {
