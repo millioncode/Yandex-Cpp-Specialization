@@ -65,18 +65,15 @@ class Statics {
 public:
     Statics(const std::vector<Person>& persons) {
         for(const auto& p: persons) {
-            auto [ptr, succes] = __persons.insert(p);
-            if (succes) {
+            auto ptr = &p;
                 ages_persons.insert( ptr->age );
                 incomes.insert(ptr->income);
                 if (ptr->is_male) {
                     M_names[ptr->name]++;
-
                 }
                 else {
                     W_names[ptr->name]++;
                 }
-            }
         }
 
     }
@@ -114,13 +111,11 @@ public:
         return static_cast<std::string>(name);
     }
 private:
-    std::unordered_set<Person, Hasher> __persons;
     std::multiset<int> ages_persons;
     std::multiset<int, std::greater<int>> incomes;
 
-    std::map<const std::string_view, int> M_names;
-    std::map<const std::string_view, int> W_names;
-
+    std::map<std::string, int> M_names;
+    std::map<std::string, int> W_names;
 };
 vector<Person> ReadPeople(istream& input) {
   int count ;
@@ -137,7 +132,8 @@ vector<Person> ReadPeople(istream& input) {
 }
 
 int main() {
-    Statics stat(ReadPeople(cin));
+    vector<Person> people = ReadPeople(cin);
+    Statics stat(people);
   for (string command; cin >> command; ) {
     if (command == "AGE") {
       int adult_age;
@@ -153,7 +149,35 @@ int main() {
     } else if (command == "POPULAR_NAME") {
       char gender;
       cin >> gender;
-        std::string most_popular_name = stat.top_names(gender=='M');
+        IteratorRange range{
+                begin(people),
+                partition(begin(people), end(people), [gender](Person& p) {
+                    return p.is_male = (gender == 'M');
+                })
+        };
+        if (range.begin() == range.end()) {
+            cout << "No people of gender " << gender << '\n';
+        } else {
+            sort(range.begin(), range.end(), [](const Person& lhs, const Person& rhs) {
+                return lhs.name < rhs.name;
+            });
+            const string* most_popular_name = &range.begin()->name;
+            int count = 1;
+            for (auto i = range.begin(); i != range.end(); ) {
+                auto same_name_end = find_if_not(i, range.end(), [i](const Person& p) {
+                    return p.name == i->name;
+                });
+                auto cur_name_count = std::distance(i, same_name_end);
+                if (cur_name_count > count) {
+                    count = cur_name_count;
+                    most_popular_name = &i->name;
+                }
+                i = same_name_end;
+            }
+            cout << "Most popular name among people of gender " << gender << " is "
+                 << *most_popular_name << '\n';
+        }
+        /*std::string most_popular_name = stat.top_names(gender=='M');
         if (!most_popular_name.empty()) {
             cout << "Most popular name among people of gender " << gender << " is "
                  << most_popular_name << '\n';
@@ -161,6 +185,7 @@ int main() {
         else {
             cout << "No people of gender " << gender << '\n';
         }
+         */
     }
   }
 }
