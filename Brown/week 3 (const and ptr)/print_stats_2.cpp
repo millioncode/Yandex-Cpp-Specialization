@@ -11,6 +11,7 @@
 #include <unordered_map>
 #include <map>
 #include <set>
+#include <string_view>
 #include <iterator>
 #include <functional>
 using namespace std;
@@ -57,38 +58,27 @@ struct Hasher {
     std::hash<bool> bhash;
     const std::size_t k = 113;
     std::size_t operator()(const Person& p) const {
-        return (shash(p.name)*k + ihash(p.age)*k + ihash(p.income)*k + bhash(p.is_male) );
+        return (shash(p.name)*k*k*k + ihash(p.age)*k*k + ihash(p.income)*k + bhash(p.is_male) );
     }
 };
 
 class Statics {
 public:
     Statics(const std::vector<Person>& persons) {
-        std::map<const std::string, int> M_names;
-        std::map<const std::string, int> W_names;
         for(const auto& p: persons) {
             auto [ptr, succes] = __persons.insert(p);
             if (succes) {
                 ages_persons.insert( ptr->age );
                 incomes.insert(ptr->income);
-                if (ptr->is_male) M_names[ptr->name]++;
-                else W_names[ptr->name]++;
+                if (ptr->is_male) {
+                    M_names[ptr->name]++;
+                }
+                else {
+                    W_names[ptr->name]++;
+                }
             }
         }
-        int m = 0;
-        for(const auto& [k, value]: M_names) {
-            if (value>m) {
-                man_name = k;
-                m = value;
-            }
-        }
-        m = 0;
-        for(const auto& [k, value]: W_names) {
-            if (value>m) {
-                woman_name = k;
-                m = value;
-            }
-        }
+
     }
     int see_ages(int age) const {
         int result = 0;
@@ -103,41 +93,45 @@ public:
         return result;
     }
     std::string top_names(bool man) const {
-        return (man)? man_name : woman_name;
+        int m = 0;
+        std::string name;
+        if (man) {
+            for (const auto&[k, value]: M_names) {
+                if (value > m) {
+                    name = k;
+                    m = value;
+                }
+            }
+        }
+        else {
+            for (const auto&[k, value]: W_names) {
+                if (value > m) {
+                    name = k;
+                    m = value;
+                }
+            }
+        }
+        return name;
     }
 private:
     std::unordered_set<Person, Hasher> __persons;
     std::multiset<int> ages_persons;
     std::multiset<int, std::greater<int>> incomes;
-    std::string man_name;
-    std::string woman_name;
+    struct name_count {
+        std::string_view name;
+        int count;
+    };
+    std::map<const std::string_view, int> M_names;
+    std::map<const std::string_view, int> W_names;
 };
 vector<Person> ReadPeople(istream& input) {
-    // читаем кол-во людей
-  int count=11;
-  //input >> count;
-    std::vector<std::string> s = {//"11\n",
-                                  "Ivan 25 1000 M\n",
-                                  "Olga 30 623 W\n",
-                                  "Sergey 24 825 M\n",
-                                  "Maria 42 1254 W\n",
-                                  "Mikhail 15 215 M\n",
-                                  "Oleg 18 230 M\n",
-                                  "Denis 53 8965 M\n",
-                                  "Maxim 37 9050 M\n",
-                                  "Ivan 47 19050 M\n",
-                                  "Ivan 17 50 M\n",
-                                  "Olga 23 550 W\n",
-                                  };
-    std::stringstream os;
-    for(const auto& a:s){
-        os << a;
-    }
+  int count ;
+  input >> count;
   vector<Person> result(count);
-    // читаем данные по людям
+
   for (Person& p : result) {
     char gender;
-    os >> p.name >> p.age >> p.income >> gender;
+    cin >> p.name >> p.age >> p.income >> gender;
     p.is_male = gender == 'M';
   }
 
@@ -145,22 +139,11 @@ vector<Person> ReadPeople(istream& input) {
 }
 
 int main() {
-   /* std::stringstream ss ;
-    std::vector<std::string> s ={
-                "AGE 18\n",
-                "AGE 25\n",
-                "WEALTHY 5\n",
-                "POPULAR_NAME M"};
-    for(const auto& a:s){
-        ss << a;
-    }*/
-
-  vector<Person> people = ReadPeople(cin);
-    Statics stat(people);
+    Statics stat(ReadPeople(cin));
   for (string command; cin >> command; ) {
     if (command == "AGE") {
       int adult_age;
-     cin >> adult_age;
+      cin >> adult_age;
 
         cout << "There are " << stat.see_ages(adult_age)
              << " adult people for maturity age " << adult_age << '\n';
