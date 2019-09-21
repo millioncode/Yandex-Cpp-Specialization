@@ -61,7 +61,6 @@ struct Hasher {
         return (shash(p.name)*k*k*k + ihash(p.age)*k*k + ihash(p.income)*k + bhash(p.is_male) );
     }
 };
-
 class Statics {
 public:
     Statics(const std::vector<Person>& persons) {
@@ -72,6 +71,7 @@ public:
                 incomes.insert(ptr->income);
                 if (ptr->is_male) {
                     M_names[ptr->name]++;
+
                 }
                 else {
                     W_names[ptr->name]++;
@@ -94,7 +94,7 @@ public:
     }
     std::string top_names(bool man) const {
         int m = 0;
-        std::string name;
+        std::string_view name;
         if (man) {
             for (const auto&[k, value]: M_names) {
                 if (value > m) {
@@ -111,18 +111,16 @@ public:
                 }
             }
         }
-        return name;
+        return static_cast<std::string>(name);
     }
 private:
     std::unordered_set<Person, Hasher> __persons;
     std::multiset<int> ages_persons;
     std::multiset<int, std::greater<int>> incomes;
-    struct name_count {
-        std::string_view name;
-        int count;
-    };
+
     std::map<const std::string_view, int> M_names;
     std::map<const std::string_view, int> W_names;
+
 };
 vector<Person> ReadPeople(istream& input) {
   int count ;
