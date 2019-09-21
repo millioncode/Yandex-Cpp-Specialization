@@ -66,19 +66,11 @@ public:
     Statics(const std::vector<Person>& persons) {
         for(const auto& p: persons) {
             auto ptr = &p;
-                ages_persons.insert( ptr->age );
-                incomes.insert(ptr->income);
-                if (ptr->is_male) {
-                    M_names[ptr->name]++;
-                }
-                else {
-                    W_names[ptr->name]++;
-                }
+            ages_persons.insert( ptr->age );
+            incomes.insert(ptr->income);
         }
-
     }
     int see_ages(int age) const {
-        int result = 0;
         auto it = lower_bound(ages_persons.begin(), ages_persons.end(), age);
         return std::distance(it, ages_persons.end());
     }
@@ -89,33 +81,9 @@ public:
         }
         return result;
     }
-    std::string top_names(bool man) const {
-        int m = 0;
-        std::string_view name;
-        if (man) {
-            for (const auto&[k, value]: M_names) {
-                if (value > m) {
-                    name = k;
-                    m = value;
-                }
-            }
-        }
-        else {
-            for (const auto&[k, value]: W_names) {
-                if (value > m) {
-                    name = k;
-                    m = value;
-                }
-            }
-        }
-        return static_cast<std::string>(name);
-    }
 private:
     std::multiset<int> ages_persons;
     std::multiset<int, std::greater<int>> incomes;
-
-    std::map<std::string, int> M_names;
-    std::map<std::string, int> W_names;
 };
 vector<Person> ReadPeople(istream& input) {
   int count ;
@@ -127,7 +95,6 @@ vector<Person> ReadPeople(istream& input) {
     cin >> p.name >> p.age >> p.income >> gender;
     p.is_male = gender == 'M';
   }
-
   return result;
 }
 
@@ -138,21 +105,19 @@ int main() {
     if (command == "AGE") {
       int adult_age;
       cin >> adult_age;
-
-        cout << "There are " << stat.see_ages(adult_age)
-             << " adult people for maturity age " << adult_age << '\n';
+      cout << "There are " << stat.see_ages(adult_age)
+            << " adult people for maturity age " << adult_age << '\n';
     } else if (command == "WEALTHY") {
       int count;
       cin >> count;
-
       cout << "Top-" << count << " people have total income " << stat.max_incomes(count) << '\n';
     } else if (command == "POPULAR_NAME") {
       char gender;
       cin >> gender;
         IteratorRange range{
                 begin(people),
-                partition(begin(people), end(people), [gender](Person& p) {
-                    return p.is_male = (gender == 'M');
+                partition(begin(people), end(people), [gender](const Person& p) {
+                    return p.is_male == (gender == 'M');
                 })
         };
         if (range.begin() == range.end()) {
@@ -177,15 +142,6 @@ int main() {
             cout << "Most popular name among people of gender " << gender << " is "
                  << *most_popular_name << '\n';
         }
-        /*std::string most_popular_name = stat.top_names(gender=='M');
-        if (!most_popular_name.empty()) {
-            cout << "Most popular name among people of gender " << gender << " is "
-                 << most_popular_name << '\n';
-        }
-        else {
-            cout << "No people of gender " << gender << '\n';
-        }
-         */
     }
   }
 }
