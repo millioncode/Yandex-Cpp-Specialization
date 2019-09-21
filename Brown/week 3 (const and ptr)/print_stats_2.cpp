@@ -61,30 +61,35 @@ struct Hasher {
         return (shash(p.name)*k*k*k + ihash(p.age)*k*k + ihash(p.income)*k + bhash(p.is_male) );
     }
 };
-class Statics {
-public:
-    Statics(const std::vector<Person>& persons) {
-        for(const auto& p: persons) {
-            auto ptr = &p;
-            ages_persons.insert( ptr->age );
-            incomes.insert(ptr->income);
+
+int see_ages(std::vector<Person>& v, int age) {
+    IteratorRange range{
+        begin(v),
+        partition(begin(v), end(v), [age](const Person& p) {
+            return p.age >= age;
+        })
+    };
+    return distance(range.begin(), range.end());
+}
+int max_incomes(const std::vector<Person>& v, int M)  {
+    std::vector<int> incomes(M,0);
+    int i=0;
+    for(const auto it : Head(v, M)) {
+        incomes[i++] = it.income;
+    }
+    auto it = min_element(incomes.begin(), incomes.end());
+    for(i=M; i<v.size(); ++i) {
+        if (v[i].income > *it) {
+            *it = v[i].income;
+            it = min_element(incomes.begin(), incomes.end());
         }
     }
-    int see_ages(int age) const {
-        auto it = lower_bound(ages_persons.begin(), ages_persons.end(), age);
-        return std::distance(it, ages_persons.end());
+    int result = 0;
+    for(const auto& a:Head(incomes, M)) {
+        result += a;
     }
-    int max_incomes(int M) const {
-        int result = 0;
-        for(auto it=incomes.begin(); it!=incomes.end() && M; ++it, M--) {
-            result += *it;
-        }
-        return result;
-    }
-private:
-    std::multiset<int> ages_persons;
-    std::multiset<int, std::greater<int>> incomes;
-};
+    return result;
+}
 vector<Person> ReadPeople(istream& input) {
   int count ;
   input >> count;
@@ -100,17 +105,16 @@ vector<Person> ReadPeople(istream& input) {
 
 int main() {
     vector<Person> people = ReadPeople(cin);
-    Statics stat(people);
   for (string command; cin >> command; ) {
     if (command == "AGE") {
       int adult_age;
       cin >> adult_age;
-      cout << "There are " << stat.see_ages(adult_age)
+      cout << "There are " << see_ages(people, adult_age)
             << " adult people for maturity age " << adult_age << '\n';
     } else if (command == "WEALTHY") {
       int count;
       cin >> count;
-      cout << "Top-" << count << " people have total income " << stat.max_incomes(count) << '\n';
+      cout << "Top-" << count << " people have total income " << max_incomes(people, count) << '\n';
     } else if (command == "POPULAR_NAME") {
       char gender;
       cin >> gender;
