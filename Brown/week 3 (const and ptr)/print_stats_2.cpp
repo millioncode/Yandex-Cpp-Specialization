@@ -83,9 +83,9 @@ public:
             }
         }
         m = 0;
-        for(const auto& [k, value]: M_names) {
+        for(const auto& [k, value]: W_names) {
             if (value>m) {
-                man_name = k;
+                woman_name = k;
                 m = value;
             }
         }
